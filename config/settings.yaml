@@ -1,0 +1,4 @@
+# settings.yaml
+browser_mode: headed  # or 'headed' for testing
+page_timeout: 30000
+base_url: https://www.calystaproemr.com
