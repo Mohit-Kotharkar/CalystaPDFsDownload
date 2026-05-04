@@ -16,7 +16,8 @@ async def authenticate_and_select_facility(credentials, settings):
 
     playwright = await async_playwright().start()
     browser = await playwright.chromium.launch(headless=(browser_mode == 'headless'))
-    context = await browser.new_context()
+    viewport = settings.get('viewport', {"width": 1280, "height": 720})
+    context = await browser.new_context(viewport=viewport)
     page = await context.new_page()
 
     # Go to login page

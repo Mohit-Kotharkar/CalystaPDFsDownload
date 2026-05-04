@@ -2,6 +2,13 @@
 from encounter_selectors import DOWNLOAD_BUTTON, NEXT_BUTTON, LAST_BUTTON
 import os
 import asyncio
+import yaml
+
+def load_settings():
+    """Load timeout from settings."""
+    config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'settings.yaml')
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
 
 async def download_encounter_documents(page, download_dir, patient_id="233957", per_page=10):
     """
@@ -12,11 +19,14 @@ async def download_encounter_documents(page, download_dir, patient_id="233957", 
         patient_id: Patient ID (hardcoded for now)
         per_page: Number of items per page (for pagination testing)
     """
+    settings = load_settings()
+    page_timeout = settings.get('page_timeout', 60000)
+    
     base_url = f"https://www.calystaproemr.com/patient-encounters/encounter-history/{patient_id}/global_view?count={per_page}&page=1"
     current_page = 1
     while True:
         url = base_url.replace("page=1", f"page={current_page}")
-        await page.goto(url)
+        await page.goto(url, timeout=page_timeout)
         await page.wait_for_load_state('networkidle')
 
         # Find all download buttons
