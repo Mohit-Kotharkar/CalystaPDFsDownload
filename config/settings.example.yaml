@@ -1,7 +1,7 @@
 # settings.yaml
 browser_mode: headless  # or 'headed' for testing
 page_timeout: 60000
-base_url: https://www.calystaproemr.com
+base_url: https://www.example.com
 viewport:
   width: 1725
   height: 973
