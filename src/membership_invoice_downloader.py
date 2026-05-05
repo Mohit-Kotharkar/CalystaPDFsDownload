@@ -3,6 +3,7 @@
 import os
 import asyncio
 from membership_invoice_selectors import VIEW_BUTTON_BY_PARENT, DOWNLOAD_BUTTON, NEXT_BUTTON, LAST_BUTTON
+from dialog_utils import ensure_dialog_auto_accept
 
 
 async def download_membership_invoices(page, download_dir, patient_id="156640", per_page=10):
@@ -24,10 +25,8 @@ async def download_membership_invoices(page, download_dir, patient_id="156640", 
     total_downloaded = 0
     total_skipped = 0
     
-    # Add dialog handler to auto-accept popups
-    async def handle_dialog(dialog):
-        await dialog.accept()
-    page.on("dialog", handle_dialog)
+    # Ensure dialog auto-accept handler is attached only once per page.
+    ensure_dialog_auto_accept(page)
 
     while True:
         url = list_page_url.replace("page=1", f"page={current_page}")

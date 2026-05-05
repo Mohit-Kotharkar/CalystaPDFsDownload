@@ -11,6 +11,6 @@ Automates downloading of Consent, Encounter, and Invoice PDFs for patients from 
 
 ## Usage
 1. Configure credentials and settings in `config/`
-2. Run `python src/main.py --patient_id <ID>`
+2. Run `python src/main.py`
 
 See requirements.txt for dependencies.

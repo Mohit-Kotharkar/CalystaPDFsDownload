@@ -4,6 +4,7 @@ import os
 import asyncio
 import yaml
 from invoice_selectors import VIEW_BUTTON, VIEW_BUTTON_BY_HREF, DOWNLOAD_BUTTON, NEXT_BUTTON, LAST_BUTTON
+from dialog_utils import ensure_dialog_auto_accept
 
 def load_settings():
     """Load timeout from settings."""
@@ -34,13 +35,8 @@ async def download_invoice_documents(page, download_dir, patient_id="233957", pe
     total_downloaded = 0
     total_skipped = 0
     
-    # Add dialog handler to auto-accept popups
-    async def handle_dialog(dialog):
-        try:
-            await dialog.accept()
-        except Exception as e:
-            print(f"[INVOICE] Dialog handling error (safe to ignore): {e}")
-    page.on("dialog", handle_dialog)
+    # Ensure dialog auto-accept handler is attached only once per page.
+    ensure_dialog_auto_accept(page)
 
     while True:
         url = list_page_url.replace("page=1", f"page={current_page}")

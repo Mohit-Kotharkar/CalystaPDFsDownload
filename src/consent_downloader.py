@@ -4,6 +4,7 @@ from consent_selectors import DOWNLOAD_BUTTON, NEXT_BUTTON, LAST_BUTTON
 import os
 import asyncio
 import yaml
+from dialog_utils import ensure_dialog_auto_accept
 
 def load_settings():
     """Load timeout from settings."""
@@ -32,11 +33,8 @@ async def download_consent_documents(page, download_dir, patient_id="233957", pe
     total_downloaded = 0
     total_skipped = 0
     
-    # Add dialog handler to auto-accept popups
-    async def handle_dialog(dialog):
-        # print(f"[CONSENT] Dialog appeared: {dialog.message}")
-        await dialog.accept()
-    page.on("dialog", handle_dialog)
+    # Ensure dialog auto-accept handler is attached only once per page.
+    ensure_dialog_auto_accept(page)
 
 
     while True:

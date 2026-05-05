@@ -4,6 +4,7 @@ import os
 import asyncio
 import yaml
 from image_selectors import DOWNLOAD_BUTTON, NEXT_BUTTON, LAST_BUTTON
+from dialog_utils import ensure_dialog_auto_accept
 
 def load_settings():
     """Load timeout from settings."""
@@ -32,13 +33,8 @@ async def download_patient_images(page, download_dir, patient_id="233957", per_p
     total_downloaded = 0
     total_skipped = 0
     
-    # Add dialog handler to auto-accept popups
-    async def handle_dialog(dialog):
-        try:
-            await dialog.accept()
-        except Exception:
-            pass  # Dialog already handled
-    page.on("dialog", handle_dialog)
+    # Ensure dialog auto-accept handler is attached only once per page.
+    ensure_dialog_auto_accept(page)
 
     while True:
         url = list_page_url.replace("page=1", f"page={current_page}")
