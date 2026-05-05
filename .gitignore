@@ -30,6 +30,9 @@ downloads/
 config/credentials.yaml
 config/settings.yaml
 
+# Patient data CSV
+Facility QA Patients.csv
+
 # Jupyter Notebooks
 *.ipynb
 
