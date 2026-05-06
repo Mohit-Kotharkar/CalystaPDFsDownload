@@ -2,7 +2,7 @@ import asyncio
 import os
 import yaml
 import csv
-from auth import authenticate_and_select_facility
+from auth import authenticate, select_facility
 from encounter_downloader import download_encounter_documents
 from consent_downloader import download_consent_documents
 from invoice_downloader import download_invoice_documents
@@ -377,11 +377,13 @@ def load_patient_data(csv_path):
             patient_id = row.get('id', '').strip()
             first_name = row.get('first_name', '').strip()
             last_name = row.get('last_name', '').strip()
-            if patient_id and first_name and last_name:
+            facility_id = row.get('facility_id', '').strip()
+            if patient_id and first_name and last_name and facility_id:
                 patient_data.append({
                     'id': patient_id,
                     'first_name': first_name,
-                    'last_name': last_name
+                    'last_name': last_name,
+                    'facility_id': facility_id
                 })
     return patient_data
 
@@ -412,8 +414,11 @@ async def main():
 
     # Authenticate and select facility (once for all patients)
     log.info("Authenticating with EMR system...")
-    playwright, browser, context, page = await authenticate_and_select_facility(credentials, settings)
+    playwright, browser, context, page = await authenticate(credentials, settings)
     log.success("Authentication successful!")
+
+    # Initialize current facility tracker
+    current_facility = None
 
     # Download encounter documents for each patient
     processed_count = 0
@@ -436,6 +441,12 @@ async def main():
         
         # Log patient start
         log.patient_start(patient_id, first_name, last_name, idx, len(patient_data))
+        
+        # Select facility if different
+        if patient['facility_id'] != current_facility:
+            log.info(f"Selecting facility {patient['facility_id']} for patient {patient_id}")
+            await select_facility(page, patient['facility_id'], settings)
+            current_facility = patient['facility_id']
         
         # Check if patient already processed
         if patient_already_processed(patient_folder_path):
