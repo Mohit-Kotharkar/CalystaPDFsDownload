@@ -5,13 +5,13 @@ import asyncio
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
 from login_selectors import USERNAME_FIELD, PASSWORD_FIELD, LOGIN_BUTTON, ERROR_MESSAGE
 
-async def authenticate_and_select_facility(credentials, settings):
+
+async def authenticate(credentials, settings):
     """
-    Authenticates to the EMR system and selects the facility.
-    Returns: playwright browser, context, and page objects after successful login and facility selection.
+    Authenticates to the EMR system and returns playwright, browser, context, and page objects after successful login.
     """
     base_url = settings.get('base_url', 'https://www.calystaproemr.com')
-    browser_mode = settings.get('browser_mode', 'headless')
+    browser_mode = settings.get('browser_mode', 'headed')
     page_timeout = int(settings.get('page_timeout', 30000))
 
     playwright = await async_playwright().start()
@@ -23,7 +23,6 @@ async def authenticate_and_select_facility(credentials, settings):
     # Go to login page
     login_url = base_url
     await page.goto(login_url, timeout=page_timeout)
-
 
     # Fill username and password using Playwright codegen selectors
     await page.wait_for_selector(USERNAME_FIELD, timeout=page_timeout)
@@ -49,8 +48,14 @@ async def authenticate_and_select_facility(credentials, settings):
         await browser.close()
         raise Exception(f"Login failed. {error_text}")
 
-    # Facility selection (if required)
-    facility = credentials.get('facility')
+    return playwright, browser, context, page
+
+
+async def select_facility(page, facility, settings):
+    """
+    Selects the facility on the EMR system using the given page and facility id or name.
+    """
+    page_timeout = int(settings.get('page_timeout', 30000))
     if facility:
         try:
             # Wait for the facility select to be present
@@ -82,5 +87,3 @@ async def authenticate_and_select_facility(credentials, settings):
             await asyncio.sleep(0.5)
         except Exception as e:
             raise Exception(f"Error selecting facility '{facility}': {e}")
-
-    return playwright, browser, context, page
